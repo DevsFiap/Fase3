@@ -1,0 +1,81 @@
+﻿namespace Fase03.Domain.Enums;
+
+public enum EnumDDD
+{
+    // Região Norte
+    Manaus_AM = 92,
+    Belem_PA = 91,
+    PortoVelho_RO = 69,
+    RioBranco_AC = 68,
+    Macapa_AP = 96,
+    BoaVista_RR = 95,
+    Palmas_TO = 63,
+    Santarem_PA = 93,
+    Maraba_PA = 94,
+    Coari_AM = 97,
+
+    // Região Nordeste
+    Salvador_BA = 71,
+    Ilheus_BA = 73,
+    Juazeiro_BA = 74,
+    FeiraDeSantana_BA = 75,
+    Barreiras_BA = 77,
+    Fortaleza_CE = 85,
+    JuazeiroDoNorte_CE = 88,
+    Recife_PE = 81,
+    Petrolina_PE = 87,
+    Maceio_AL = 82,
+    Aracaju_SE = 79,
+    JoaoPessoa_PB = 83,
+    Natal_RN = 84,
+    Teresina_PI = 86,
+    Picos_PI = 89,
+    SaoLuis_MA = 98,
+    Imperatriz_MA = 99,
+
+    // Região Centro-Oeste
+    Brasilia_DF = 61,
+    Goiania_GO = 62,
+    RioVerde_GO = 64,
+    Cuiaba_MT = 65,
+    Rondonopolis_MT = 66,
+    CampoGrande_MS = 67,
+
+    // Região Sudeste
+    SaoPaulo_SP = 11,
+    SaoJoseDosCampos_SP = 12,
+    Santos_SP = 13,
+    Bauru_SP = 14,
+    Sorocaba_SP = 15,
+    RibeiraoPreto_SP = 16,
+    SaoJoseDoRioPreto_SP = 17,
+    PresidentePrudente_SP = 18,
+    Campinas_SP = 19,
+    RioDeJaneiro_RJ = 21,
+    CamposDosGoytacazes_RJ = 22,
+    VoltaRedonda_RJ = 24,
+    BeloHorizonte_MG = 31,
+    JuizDeFora_MG = 32,
+    GovernadorValadares_MG = 33,
+    Uberlandia_MG = 34,
+    PocosDeCaldas_MG = 35,
+    Divinopolis_MG = 37,
+    MontesClaros_MG = 38,
+    Vitoria_ES = 27,
+    CachoeiroDeItapemirim_ES = 28,
+
+    // Região Sul
+    Curitiba_PR = 41,
+    PontaGrossa_PR = 42,
+    Londrina_PR = 43,
+    Maringa_PR = 44,
+    FozDoIguacu_PR = 45,
+    PatoBranco_PR = 46,
+    Joinville_SC = 47,
+    Florianopolis_SC = 48,
+    Chapeco_SC = 49,
+    PortoAlegre_RS = 51,
+    Pelotas_RS = 53,
+    CaxiasDoSul_RS = 54,
+    SantaMaria_RS = 55
+}

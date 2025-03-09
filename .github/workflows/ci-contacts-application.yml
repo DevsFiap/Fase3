@@ -1,0 +1,57 @@
+name: .NET Core Desktop
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: ubuntu-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+
+    env:
+      Solution_Name: src/TechChallangeFase02.sln  # Path to your solution (use forward slashes for Linux)
+      Test_Project_Path: src/TechChallengeFase02.Tests/TechChallengeFase02.Tests.csproj  # Path to your test project
+      Integration_Test_Project_Path: src/TechChallengeFase02.IntegrationTests/TechChallengeFase02.IntegrationTests.csproj  # Path to your integration test project
+      
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # Restore the application and all its dependencies
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.Solution_Name }} 
+
+    # Build the application
+    - name: Build the application
+      run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} 
+
+    # Execute all unit tests in the solution
+    - name: Execute unit tests
+      run: dotnet test ${{ env.Test_Project_Path }} 
+
+    - name: Execute Integration tests
+      run: dotnet test ${{ env.Integration_Test_Project_Path }} 
+
+    # Upload the build artifacts
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifact
+        path: dist/build/artifact/
