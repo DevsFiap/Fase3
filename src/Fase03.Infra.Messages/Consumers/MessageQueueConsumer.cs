@@ -9,6 +9,7 @@ using Fase03.Infra.Message.Helpers;
 using Fase03.Infra.Message.Models;
 using Fase03.Infra.Message.Settings;
 using Fase03.Infra.Message.ValueObjects;
+using Fase03.Infra.Messages.Helpers;
 
 namespace Fase03.Infra.Message.Consumers;
 
@@ -16,13 +17,13 @@ public class MessageQueueConsumer : BackgroundService
 {
     private readonly MessageSettings? _messageSettings;
     private readonly IServiceProvider _serviceProvider;
-    private readonly MailHelper _mailHelper;
+    private readonly IMailHelper _mailHelper;
     private readonly IConnection? _connection;
     private readonly IModel? _model;
 
     public MessageQueueConsumer(IOptions<MessageSettings>
         messageSettings, IServiceProvider
-        serviceProvider, MailHelper mailHelper)
+        serviceProvider, IMailHelper mailHelper)
     {
         _messageSettings = messageSettings.Value;
         _serviceProvider = serviceProvider;

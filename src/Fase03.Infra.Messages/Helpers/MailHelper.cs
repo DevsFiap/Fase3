@@ -2,13 +2,14 @@
 using System.Net;
 using System.Net.Mail;
 using Fase03.Infra.Message.Settings;
+using Fase03.Infra.Messages.Helpers;
 
 namespace Fase03.Infra.Message.Helpers;
 
 /// <summary>
 /// Classe para envio de emails
 /// </summary>
-public class MailHelper
+public class MailHelper : IMailHelper
 {
     private readonly MailSettings _mailSettings;
 

@@ -3,6 +3,8 @@ using Fase03.Infra.Message.Consumers;
 using Fase03.Infra.Message.Producers;
 using Fase03.Infra.Message.Settings;
 using Microsoft.Extensions.Configuration;
+using Fase03.Infra.Message.Helpers;
+using Fase03.Infra.Messages.Helpers;
 
 namespace Fase03.Infra.IoC.Extensions;
 

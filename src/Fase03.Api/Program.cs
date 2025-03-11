@@ -16,6 +16,7 @@ builder.Services.AddAutoMapperConfig();
 builder.Services.AddDbContextConfig(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddPrometheusMetrics();
+builder.Services.AddMailHelperConfig(builder.Configuration);
 builder.Services.AddRabbitMqConfig(builder.Configuration);
 builder.Services.AddMediatRConfig();
 
