@@ -1,15 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Fase03.Domain.Models;
+using Fase03.Infra.Message.Settings;
+using Fase03.Infra.Message.ValueObjects;
+using Fase03.Infra.Messages.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using Fase03.Infra.Message.Helpers;
-using Fase03.Infra.Message.Models;
-using Fase03.Infra.Message.Settings;
-using Fase03.Infra.Message.ValueObjects;
-using Fase03.Infra.Messages.Helpers;
 
 namespace Fase03.Infra.Message.Consumers;
 
@@ -74,19 +73,19 @@ public class MessageQueueConsumer : BackgroundService
             //verificar o tipo da mensagem
             switch (messageQueueModel.Tipo)
             {
-                case TipoMensagem.CONFIRMACAO_DE_CADASTRO:
+                case TipoMensagem.INSERIR_CONTATO:
                     //processando a mensagem
                     using (var scope = _serviceProvider.CreateScope())
                     {
-                        //capturando os dados do usuario
+                        //capturando os dados do contato
                         //contido na mensagem
-                        var usuariosMessageVO = JsonConvert.DeserializeObject
-                        <UsuariosMessageVO>
+                        var contatosMessageVO = JsonConvert.DeserializeObject
+                        <ContatosMessageVO>
                         (messageQueueModel.Conteudo);
 
                         //enviando o email
                         EnviarMensagemDeConfirmacaoDeCadastro
-                        (usuariosMessageVO);
+                        (contatosMessageVO);
                         //comunicando ao rabbit que a mensagem
                         //foi processada!
                         //dessa forma, a mensagem sairá da fila
@@ -94,7 +93,10 @@ public class MessageQueueConsumer : BackgroundService
                     }
                     break;
 
-                case TipoMensagem.RECUPERACAO_DE_SENHA:
+                case TipoMensagem.ATUALIZAR_CONTATO:
+                    //TODO
+                    break;
+                case TipoMensagem.DELETAR_CONTATO:
                     //TODO
                     break;
             }
@@ -106,21 +108,22 @@ public class MessageQueueConsumer : BackgroundService
 
     /// <summary>
     /// Método para escrever e enviar o email
-    /// de confirmação de cadastro de conta de usuário
+    /// de confirmação de cadastro de conta de contato
     /// </summary>
-    private void EnviarMensagemDeConfirmacaoDeCadastro(UsuariosMessageVO usuariosMessageVO)
+    private void EnviarMensagemDeConfirmacaoDeCadastro(ContatosMessageVO contatosMessageVO)
     {
-        var mailTo = usuariosMessageVO.Email;
-        var subject = $"Confirmação de cadastro de usuário. ID: {usuariosMessageVO.Id}";
-        var body = $@"Olá {usuariosMessageVO.Nome},
+        var mailTo = contatosMessageVO.Email;
+        var subject = $"Confirmação de cadastro de contato. ID: {contatosMessageVO.Id}";
+        var body = $@"Olá {contatosMessageVO.Nome},
                 <br/>
                 <br/>
-                <strong>Parabéns, sua conta de usuário
-                foi criada com sucesso!</strong>
+                <strong>Parabéns, seu contato
+                foi criado com sucesso!</strong>
                 <br/>
                 <br/>
-                ID: <strong>{usuariosMessageVO.Id}</strong> <br/>
-                Nome: <strong>{usuariosMessageVO.Nome}</strong> <br/>
+                ID: <strong>{contatosMessageVO.Id}</strong> <br/>
+                Nome: <strong>{contatosMessageVO.Nome}</strong> <br/>
+                Telefone: <strong>{contatosMessageVO.Telefone}</strong> <br/>
                 <br/>
                 Att, <br/>
                 Equipe FIAP.";

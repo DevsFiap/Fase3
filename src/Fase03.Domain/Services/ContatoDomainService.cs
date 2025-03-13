@@ -11,7 +11,9 @@ public class ContatoDomainService : IContatoDomainService
     private readonly IContatosRepository _contatoRepository;
 
     public ContatoDomainService(IContatosRepository contatoRepository)
-        => _contatoRepository = contatoRepository;
+    {
+        _contatoRepository = contatoRepository;
+    }     
 
     public async Task<List<Contato>> BuscarContatos()
         => await _contatoRepository.GetAllAsync();
@@ -28,7 +30,9 @@ public class ContatoDomainService : IContatoDomainService
     }
 
     public async Task CreateContatoAsync(Contato contato)
-        => await _contatoRepository.CreateAsync(contato);
+    {
+         await _contatoRepository.CreateAsync(contato);
+    }
 
     public async Task UpdateContatoAsync(int id, Contato contato)
     {
