@@ -17,53 +17,6 @@ public class ContatosController : ControllerBase
         => _contatosAppService = contatosAppService;
 
     /// <summary>
-    /// Obtém todos os contatos.
-    /// </summary>
-    /// <returns>Uma lista de contatos.</returns>
-    [HttpGet("buscar-todos")]
-    [SwaggerOperation(Summary = "Buscar todos os contatos")]
-    [ProducesResponseType(typeof(IEnumerable<ContatoDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> BuscarContatos()
-    {
-        try
-        {
-            var contatos = await _contatosAppService.GetContatos();
-
-            if (contatos == null)
-            {
-                return NoContent();
-            }
-
-            return Ok(contatos);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    /// <summary>
-    /// Obtém contatos filtrados pelo DDD.
-    /// </summary>
-    /// <param name="ddd">O DDD para filtrar os contatos.</param>
-    /// <returns>Uma lista de contatos filtrados pelo DDD.</returns>
-    [HttpGet("buscar-ddd/{ddd}")]
-    [SwaggerOperation(Summary = "Buscar contatos por DDD")]
-    [ProducesResponseType(typeof(IEnumerable<ContatoDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> BuscarPorDDD(EnumDDD ddd)
-    {
-        var contatos = await _contatosAppService.ObterPorDDDAsync(ddd);
-        if (contatos == null)
-        {
-            return NoContent();
-        }
-        return Ok(contatos);
-    }
-
-    /// <summary>
     /// Cria um novo contato.
     /// </summary>
     /// <param name="dto">Os dados do novo contato.</param>

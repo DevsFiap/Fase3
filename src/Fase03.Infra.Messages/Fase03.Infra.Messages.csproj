@@ -11,4 +11,8 @@
 		<PackageReference Include="RabbitMQ.Client.Core.DependencyInjection" Version="5.0.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\Fase03.Domain\Fase03.Domain.csproj" />
+	</ItemGroup>
+
 </Project>

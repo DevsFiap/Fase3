@@ -1,17 +1,17 @@
-﻿using RabbitMQ.Client;
-using System;
-using System.Text;
-using Newtonsoft.Json;
-using Fase03.Infra.Message.Models;
+﻿using Fase03.Domain.Interfaces.Messages;
+using Fase03.Domain.Models;
 using Fase03.Infra.Message.Settings;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
+using System.Text;
 
 namespace Fase03.Infra.Message.Producers;
 
 /// <summary>
 /// Classe para escrita de mensagens na fila do RabbitMQ
 /// </summary>
-public class MessageQueueProducer
+public class MessageQueueProducer : IMessageQueueProducer
 {
     private readonly MessageSettings? _messageSettings;
     private readonly ConnectionFactory? _connectionFactory;

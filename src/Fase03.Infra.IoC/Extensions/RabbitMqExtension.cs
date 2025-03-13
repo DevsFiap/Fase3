@@ -5,6 +5,7 @@ using Fase03.Infra.Message.Settings;
 using Microsoft.Extensions.Configuration;
 using Fase03.Infra.Message.Helpers;
 using Fase03.Infra.Messages.Helpers;
+using Fase03.Domain.Interfaces.Messages;
 
 namespace Fase03.Infra.IoC.Extensions;
 
@@ -16,10 +17,10 @@ public static class RabbitMqExtension
         services.Configure<MessageSettings>(configuration.GetSection("MessageSettings"));
 
         // Registra o Producer (quem envia mensagens)
-        services.AddSingleton<MessageQueueProducer>();
+        services.AddSingleton<IMessageQueueProducer, MessageQueueProducer>();
 
         // Registra o Consumer (quem recebe mensagens)
-        services.AddHostedService<MessageQueueConsumer>();
+      //  services.AddHostedService<MessageQueueConsumer>();
 
         return services;
     }

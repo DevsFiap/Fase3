@@ -5,18 +5,24 @@ using Fase03.Application.Interfaces;
 using Fase03.Application.Utils;
 using Fase03.Domain.Entities;
 using Fase03.Domain.Enums;
+using Fase03.Domain.Interfaces.Messages;
 using Fase03.Domain.Interfaces.Services;
+using Fase03.Domain.Models;
+using Fase03.Domain.Services;
+using System.Text.Json;
 
 namespace Fase03.Application.Services;
 
 public class ContatosAppService : IContatosAppService
 {
     private readonly IContatoDomainService _contatoDomainService;
+    private readonly IMessageQueueProducer _messageQueueProducer;
     private readonly IMapper _mapper;
 
-    public ContatosAppService(IContatoDomainService contatoDomainService, IMapper mapper)
+    public ContatosAppService(IContatoDomainService contatoDomainService, IMessageQueueProducer messageQueueProducer, IMapper mapper)
     {
         _contatoDomainService = contatoDomainService;
+        _messageQueueProducer = messageQueueProducer;
         _mapper = mapper;
     }
 
@@ -55,8 +61,16 @@ public class ContatosAppService : IContatosAppService
                 DataCriacao = DateTime.Now // Atribuir a data de criação
             };
 
-            // Criar o contato no domínio
             await _contatoDomainService.CreateContatoAsync(contato);
+
+            var mensagem = new MessageQueueModel
+            {
+                Conteudo = JsonSerializer.Serialize(contato),
+                Tipo = TipoMensagem.INSERIR_CONTATO
+            };
+
+            // Criar o contato no domínio
+             _messageQueueProducer.Create(mensagem);
 
             // Mapeie o contato criado para o ContatoDto
             var result = _mapper.Map<ContatoDto>(contato);
@@ -96,7 +110,16 @@ public class ContatosAppService : IContatosAppService
             contatoExistente.Nome = dto.Nome;
             contatoExistente.Email = dto.Email;
 
-            await _contatoDomainService.UpdateContatoAsync(id, contatoExistente);
+            await _contatoDomainService.UpdateContatoAsync(id,contatoExistente);
+
+            var mensagem = new MessageQueueModel
+            {
+                Conteudo = JsonSerializer.Serialize(contatoExistente),
+                Tipo = TipoMensagem.ATUALIZAR_CONTATO
+            };
+
+            // Criar o contato no domínio
+            _messageQueueProducer.Create(mensagem);
 
             return _mapper.Map<ContatoDto>(contatoExistente);
         }
@@ -114,7 +137,15 @@ public class ContatosAppService : IContatosAppService
             if (contatoExistente == null)
                 throw new KeyNotFoundException("Contato não encontrado.");
 
-            await _contatoDomainService.DeleteContatoAsync(id);
+            await _contatoDomainService.DeleteContatoAsync(id)
+;            var mensagem = new MessageQueueModel
+            {
+                Conteudo = JsonSerializer.Serialize(contatoExistente),
+                Tipo = TipoMensagem.DELETAR_CONTATO
+            };
+
+            // Criar o contato no domínio
+            _messageQueueProducer.Create(mensagem);
         }
         catch (Exception ex)
         {
