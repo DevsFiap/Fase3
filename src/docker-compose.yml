@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  techchallangefase02.api:
-    image: ${DOCKER_REGISTRY-}techchallangefase02api
+  techchallangefase03.api:
+    image: ${DOCKER_REGISTRY-}techchallangefase03api
     ports:
       - 8080:8080
     build:

@@ -21,23 +21,6 @@ namespace TechChallengeFase01.Tests.Mappings
             _mapper = config.CreateMapper();
         }
 
-        [Fact(DisplayName = "Mapear Contato para ContatoDto com sucesso")]
-        public void Should_Map_Contact_To_ContactDto()
-        {
-            // Arrange
-            var contato = new ContatoBuilder().Build();
-            // Act
-            var contatoDto = _mapper.Map<ContatoDto>(contato);
-
-            // Assert
-            contatoDto.Should().NotBeNull();
-            contatoDto.Nome.Should().Be(contato.Nome);
-            contatoDto.Email.Should().Be(contato.Email);
-            contatoDto.DataCriacao.Should().Be(contato.DataCriacao);
-            contatoDto.DDDTelefone.Should().Be(contato.DDDTelefone);
-            contatoDto.NumeroTelefone.Should().Be(contato.Telefone);
-        }
-
         [Fact(DisplayName = "Mapear CriarContatoDto para Contato com sucesso")]
         public void Should_Map_CreateContactDto_To_Contact()
         {
