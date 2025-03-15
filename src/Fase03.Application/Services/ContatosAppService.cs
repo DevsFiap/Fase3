@@ -3,6 +3,7 @@ using Fase03.Application.Commands;
 using Fase03.Application.Interfaces;
 using Fase03.Domain.Interfaces.Messages;
 using Fase03.Domain.Models;
+using Fase03.Infra.Message.ValueObjects;
 using System.Text.Json;
 
 namespace Fase03.Application.Services;
@@ -20,10 +21,16 @@ public class ContatosAppService : IContatosAppService
     {
         try
         {
-           
+            var conteudoMensagem = new ContatosMessageVO
+            {
+                Nome = dto.Nome,
+                Telefone = dto.Telefone,
+                Email = dto.Email
+            };
+
             var mensagem = new MessageQueueModel
             {
-                Conteudo = JsonSerializer.Serialize(dto),
+                Conteudo = JsonSerializer.Serialize(conteudoMensagem),
                 Tipo = TipoMensagem.INSERIR_CONTATO
             };
 
@@ -42,10 +49,17 @@ public class ContatosAppService : IContatosAppService
     {
         try
         {
-           
+            var conteudoMensagem = new ContatosMessageVO
+            {
+                Id = id,
+                Nome = dto.Nome,
+                Telefone = dto.Telefone,
+                Email = dto.Email
+            };
+
             var mensagem = new MessageQueueModel
             {
-                Conteudo = JsonSerializer.Serialize(dto),
+                Conteudo = JsonSerializer.Serialize(conteudoMensagem),
                 Tipo = TipoMensagem.ATUALIZAR_CONTATO
             };
 
@@ -64,9 +78,14 @@ public class ContatosAppService : IContatosAppService
     {
         try
         {
-;            var mensagem = new MessageQueueModel
+            var conteudoMensagem = new ContatosMessageVO
             {
-                Conteudo = JsonSerializer.Serialize(id),
+                Id = id
+            };
+
+            var mensagem = new MessageQueueModel
+            {
+                Conteudo = JsonSerializer.Serialize(conteudoMensagem),
                 Tipo = TipoMensagem.DELETAR_CONTATO
             };
 

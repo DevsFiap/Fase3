@@ -7,9 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="12.0.1" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-	<PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -18,8 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fase03.Domain\Fase03.Domain.csproj" />
-    <ProjectReference Include="..\Fase03.Infra.Messages\Fase03.Infra.Messages.csproj" />
+    <ProjectReference Include="..\Fase03.Domain.Core\Fase03.Domain.Core.csproj" />
   </ItemGroup>
 
 </Project>
