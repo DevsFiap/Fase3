@@ -10,9 +10,8 @@ namespace Fase03.Application.Services;
 public class ContatosAppService : IContatosAppService
 {
     private readonly IMessageQueueProducer _messageQueueProducer;
-    private readonly IMapper _mapper;
 
-    public ContatosAppService(IMessageQueueProducer messageQueueProducer, IMapper mapper)
+    public ContatosAppService(IMessageQueueProducer messageQueueProducer)
     {
         _messageQueueProducer = messageQueueProducer;
     }

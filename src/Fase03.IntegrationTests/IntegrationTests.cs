@@ -1,11 +1,7 @@
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Net;
 using System.Text;
-using Fase03.Application.Dto;
-using Fase03.Domain.Entities;
-using Fase03.Infra.Data.Context;
 
 namespace TechChallengeFase02.IntegrationTests
 {

@@ -1,11 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Fase03.Infra.Message.Consumers;
+﻿using Fase03.Domain.Interfaces.Messages;
 using Fase03.Infra.Message.Producers;
 using Fase03.Infra.Message.Settings;
 using Microsoft.Extensions.Configuration;
-using Fase03.Infra.Message.Helpers;
-using Fase03.Infra.Messages.Helpers;
-using Fase03.Domain.Interfaces.Messages;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Fase03.Infra.IoC.Extensions;
 
@@ -18,9 +15,6 @@ public static class RabbitMqExtension
 
         // Registra o Producer (quem envia mensagens)
         services.AddSingleton<IMessageQueueProducer, MessageQueueProducer>();
-
-        // Registra o Consumer (quem recebe mensagens)
-      //  services.AddHostedService<MessageQueueConsumer>();
 
         return services;
     }

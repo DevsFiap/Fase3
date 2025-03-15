@@ -18,7 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Fase03.Application\Fase03.Application.csproj" />
     <ProjectReference Include="..\Fase03.Domain\Fase03.Domain.csproj" />
-    <ProjectReference Include="..\Fase03.Infra.Data\Fase03.Infra.Data.csproj" />
     <ProjectReference Include="..\Fase03.Infra.Messages\Fase03.Infra.Messages.csproj" />
   </ItemGroup>
 

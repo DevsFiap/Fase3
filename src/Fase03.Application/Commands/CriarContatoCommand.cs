@@ -1,6 +1,4 @@
 ﻿using Fase03.Application.Dto;
-using Fase03.Domain.Entities;
-using Fase03.Domain.Enums;
 using MediatR;
 using System.ComponentModel.DataAnnotations;
 

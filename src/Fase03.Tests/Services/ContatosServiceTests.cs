@@ -1,29 +1,23 @@
 ﻿using AutoMapper;
-using FluentAssertions;
-using Moq;
-using Fase03.Application.Dto;
 using Fase03.Application.Services;
-using Fase03.Domain.Entities;
-using Fase03.Domain.Enums;
-using Fase03.Domain.Interfaces.Services;
-using TechChallengeFase01.Tests.Builders;
 using Fase03.Domain.Interfaces.Messages;
 using Fase03.Domain.Models;
+using FluentAssertions;
+using Moq;
 using System.Text.Json;
+using TechChallengeFase01.Tests.Builders;
 
 namespace TechChallengeFase01.Tests.Services
 {
     public class ContatosServiceTests
     {
         private readonly Mock<IMessageQueueProducer> _messageQueueProducerMock;
-        private readonly Mock<IMapper> _mapperMock;
         private readonly ContatosAppService _contatosService;
 
         public ContatosServiceTests()
         {
             _messageQueueProducerMock = new Mock<IMessageQueueProducer>();
-            _mapperMock = new Mock<IMapper>();
-            _contatosService = new ContatosAppService(_messageQueueProducerMock.Object, _mapperMock.Object);
+            _contatosService = new ContatosAppService(_messageQueueProducerMock.Object);
         }
 
         [Fact(DisplayName = "Criar contato com sucesso")]
@@ -31,8 +25,6 @@ namespace TechChallengeFase01.Tests.Services
         {
             // Arrange
             var criarContatoDto = new CriarContatoDtoBuilder().Build();
-
-            var contato = new ContatoBuilder().Build();
 
             var contatoDto = new ContatoDtoBuilder().Build();
 
@@ -60,8 +52,6 @@ namespace TechChallengeFase01.Tests.Services
             // Arrange
             var contatoId = 1;
             var atualizarContatoDto = new AtualizarContatoDtoBuilder().Build();
-
-            var contatoExistente = new ContatoBuilder().Build();
 
             var contatoDto = new ContatoDtoBuilder().Build();
 
