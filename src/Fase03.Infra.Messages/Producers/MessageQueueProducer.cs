@@ -47,8 +47,19 @@ public class MessageQueueProducer : IMessageQueueProducer
                     durable: true,
                     exclusive: false,
                     autoDelete: false,
-                    arguments: null
-                    );
+                    arguments: new Dictionary<string, object>
+                    {
+                        { "x-dead-letter-exchange", "dlx_exchange" } // DLX configurado para redirecionar para o DLQ
+                    }
+                );
+
+                channel.ExchangeDeclare("dlx_exchange", ExchangeType.Direct);
+                channel.QueueDeclare(queue: "dlq_queue",
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false);
+
+                channel.QueueBind("dlq_queue", "dlx_exchange", "dlx_routing_key");
 
                 //Escrevendo o conteúdo da fila
                 channel.BasicPublish(

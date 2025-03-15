@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fase03.Domain\Fase03.Domain.csproj" />
+    <ProjectReference Include="..\Fase03.Infra.Messages\Fase03.Infra.Messages.csproj" />
   </ItemGroup>
 
 </Project>
