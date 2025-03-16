@@ -4,6 +4,7 @@ using Fase03.Infra.Message.Settings;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
 using System.Text;
 
 namespace Fase03.Infra.Message.Producers;
@@ -21,13 +22,7 @@ public class MessageQueueProducer : IMessageQueueProducer
         this._messageSettings = messageSettings.Value;
 
         //Conexão com o servidor de mensageria(broker)
-        _connectionFactory = new ConnectionFactory
-        {
-            //HostName = _messageSettings.Host,
-            //UserName = _messageSettings.Username,
-            //Password = _messageSettings.Password
-            Uri = new Uri(_messageSettings.Host)
-        };
+        _connectionFactory = new ConnectionFactory { Uri = new Uri(_messageSettings.Host) };
     }
 
     /// <summary>
@@ -35,39 +30,47 @@ public class MessageQueueProducer : IMessageQueueProducer
     /// </summary>
     public void Create(MessageQueueModel model)
     {
-        //Abrir conexão com o servidor de mensageria
+        // Abre conexão com o servidor de mensageria
         using (var connection = _connectionFactory.CreateConnection())
         {
-            //Criando um objeto na fila de mensagens
+            // Cria o canal para envio de mensagens
             using (var channel = connection.CreateModel())
             {
-                //Parametros para conexão da fila
+                // Declara a fila principal (idempotente)
                 channel.QueueDeclare(
-                    queue: _messageSettings.Queue, //Nome da fila
+                    queue: _messageSettings.Queue, // Nome da fila ("contato")
                     durable: true,
                     exclusive: false,
                     autoDelete: false,
                     arguments: new Dictionary<string, object>
                     {
-                        { "x-dead-letter-exchange", "dlx_exchange" } // DLX configurado para redirecionar para o DLQ
+                    { "x-dead-letter-exchange", "dlx_exchange" },
+                    { "x-dead-letter-routing-key", "dlx_routing_key" }  // Define a routing key para a DLQ
                     }
                 );
 
-                channel.ExchangeDeclare("dlx_exchange", ExchangeType.Direct);
-                channel.QueueDeclare(queue: "dlq_queue",
-                                     durable: true,
-                                     exclusive: false,
-                                     autoDelete: false);
+                // Declara o exchange para DLQ (idempotente)
+                channel.ExchangeDeclare("dlx_exchange", ExchangeType.Direct, durable: true);
 
+                // Declara a fila para DLQ (idempotente)
+                channel.QueueDeclare(
+                    queue: "dlq_queue",
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null
+                );
+
+                // Faz a binding da DLQ com o exchange usando a routing key
                 channel.QueueBind("dlq_queue", "dlx_exchange", "dlx_routing_key");
 
-                //Escrevendo o conteúdo da fila
+                // Publica a mensagem na fila principal
                 channel.BasicPublish(
                     exchange: string.Empty,
                     routingKey: _messageSettings.Queue,
                     basicProperties: null,
                     body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(model))
-                    );
+                );
             }
         }
     }
