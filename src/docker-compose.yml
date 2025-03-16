@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  techchallangefase03.api:
-    image: ${DOCKER_REGISTRY-}techchallangefase03api
+  fase03.api:
+    image: ${DOCKER_REGISTRY-}fase03api
     ports:
       - 8080:8080
     build:
@@ -15,7 +15,7 @@ services:
     depends_on:
       - rabbitmq
     networks:
-      - mynw
+      - microservice-network
 
   rabbitmq:
     image: rabbitmq:management
@@ -28,7 +28,7 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     networks:
-      - mynw
+      - microservice-network
 
   prometheus:
     image: prom/prometheus
@@ -39,7 +39,7 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     networks:
-      - mynw
+      - microservice-network
 
   grafana:
     image: grafana/grafana
@@ -52,17 +52,18 @@ services:
     depends_on:
       - prometheus
     networks:
-      - mynw
+      - microservice-network
 
-  SqlServerDB:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      - SA_PASSWORD=123@Mudar
-      - ACCEPT_EULA=Y
-    ports:
-      - "1433:1433"
-    networks:
-      - mynw
+  # SqlServerDB:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   environment:
+  #     - SA_PASSWORD=123@Mudar
+  #     - ACCEPT_EULA=Y
+  #   ports:
+  #     - "1433:1433"
+  #   networks:
+  #     - microservice-network
 
 networks:
-  mynw:
+  microservice-network:
+    external: true

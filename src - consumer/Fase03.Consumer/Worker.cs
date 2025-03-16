@@ -1,7 +1,4 @@
-﻿using Fase03.Application.Commands;
-using Fase03.Application.Interfaces;
-using Fase03.Application.Services;
-using Fase03.Domain.Models;
+﻿using Fase03.Domain.Models;
 using Fase03.Infra.Message.Settings;
 using Fase03.Infra.Message.ValueObjects;
 using Fase03.Infra.Messages.Helpers;
@@ -10,42 +7,58 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using System.Threading.Channels;
+using Fase03.Application.Interfaces;
+using Fase03.Application.Commands;
 
 namespace Fase03.Consumer
 {
     public class Worker : BackgroundService
     {
-        private readonly MessageSettings? _messageSettings;
-      //  private readonly IContatosAppService _contatosAppService;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IConnection _connection;
+        private readonly IModel _model;
+        private readonly MessageSettings _messageSettings;
+        private readonly ILogger<Worker> _logger;
         private readonly IMailHelper _mailHelper;
-        private readonly IConnection? _connection;
-        private readonly IModel? _model;
+        private readonly IContatosAppService _contatosAppService;
 
-        public Worker(IOptions<MessageSettings> messageSettings,
-    //        IContatosAppService contatosAppService,
-            IServiceProvider serviceProvider,
-            IMailHelper mailHelper)
+        public Worker(
+            IConnection connection,
+            IModel model,
+            IOptions<MessageSettings> messageSettings,
+            IMailHelper mailHelper,
+            ILogger<Worker> logger,
+            IContatosAppService contatosAppService)
         {
+            _connection = connection;
+            _model = model;
             _messageSettings = messageSettings.Value;
-      //      _contatosAppService = contatosAppService;
-            _serviceProvider = serviceProvider;
             _mailHelper = mailHelper;
+            _logger = logger;
+            _contatosAppService = contatosAppService;
 
-            #region Conectando no servidor de mensageria
+            _logger.LogInformation("Iniciando o Worker...");
+
+            if (_connection.IsOpen)
+                _logger.LogInformation("Conexão com RabbitMQ estabelecida com sucesso.");
+            else
+                _logger.LogError("Erro ao conectar ao RabbitMQ.");
+
+            if (_model.IsOpen)
+                _logger.LogInformation("Canal (IModel) aberto com sucesso.");
+            else
+                _logger.LogError("Erro ao abrir o canal RabbitMQ.");
+        }
+
+        /// <summary>
+        /// Método para ler a fila do RabbitMQ
+        /// </summary>
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation("Iniciando o Worker...");
+
             try
             {
-                var connectionFactory = new ConnectionFactory
-                {
-                    Uri = new Uri(_messageSettings.Host)
-                };
-
-                _connection = connectionFactory.CreateConnection();
-                _model = _connection.CreateModel();
-
-                Console.WriteLine("✅ Conexão com RabbitMQ estabelecida com sucesso!");
-
+                // Declarando a fila e o exchange
                 _model.QueueDeclare(
                     queue: _messageSettings.Queue,
                     durable: true,
@@ -53,111 +66,78 @@ namespace Fase03.Consumer
                     autoDelete: false,
                     arguments: new Dictionary<string, object>
                     {
-                        { "x-dead-letter-exchange", "dlx_exchange" } // DLX configurado para redirecionar para o DLQ
+                        { "x-dead-letter-exchange", "dlx_exchange" },
+                        { "x-dead-letter-routing-key", "dlx_routing_key" }
                     }
                 );
 
-                _model.ExchangeDeclare("dlx_exchange", ExchangeType.Direct);
-
+                _model.ExchangeDeclare("dlx_exchange", ExchangeType.Direct, durable: true);
                 _model.QueueBind("dlq_queue", "dlx_exchange", "dlx_routing_key");
 
+                _logger.LogInformation("Fila 'contato' e DLX configurados com sucesso.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Erro ao conectar ao RabbitMQ: {ex.Message}");
+                _logger.LogError($"❌ Erro ao configurar o RabbitMQ: {ex.Message}");
             }
-            #endregion
 
-        }
-
-        /// <summary>
-        /// Método para ler a fila do RabbitMQ
-        /// </summary>
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            //componente para fazer a leitura da fila
+            // Configuração do consumer
             var consumer = new EventingBasicConsumer(_model);
 
-            //fazendo a leitura
             consumer.Received += async (sender, args) =>
             {
-                //ler o conteudo da mensagem gravada na fila
                 var contentArray = args.Body.ToArray();
                 var contentString = Encoding.UTF8.GetString(contentArray);
 
-                //deserializar a mensagem
-                var messageQueueModel = JsonConvert.DeserializeObject<MessageQueueModel>(contentString);
+                _logger.LogInformation($"Mensagem recebida: {contentString}");
 
-                //verificar o tipo da mensagem
-                switch (messageQueueModel.Tipo)
+                try
                 {
-                    case TipoMensagem.INSERIR_CONTATO:
-                        using (var scope = _serviceProvider.CreateScope())
+                    var messageQueueModel = JsonConvert.DeserializeObject<MessageQueueModel>(contentString);
+                    _logger.LogInformation($"Tipo de mensagem: {messageQueueModel.Tipo}");
+
+                    if (messageQueueModel.Tipo == TipoMensagem.INSERIR_CONTATO)
+                    {
+                        var criarContatoCommand = JsonConvert.DeserializeObject<CriarContatoCommand>(messageQueueModel.Conteudo);
+                        var contatoDto = await _contatosAppService.CriarContatoAsync(criarContatoCommand);
+                        _logger.LogInformation($"Contato '{contatoDto.Nome}' criado com sucesso.");
+
+                        var contatosMessageVO = new ContatosMessageVO
                         {
-                            try
-                            {
-                                var contatosAppService = scope.ServiceProvider.GetRequiredService<IContatosAppService>();
-                                var criarContato = JsonConvert.DeserializeObject<CriarContatoCommand>
-                                (messageQueueModel.Conteudo);
-                                var contato = await contatosAppService.CriarContatoAsync(criarContato);
-                                _model.BasicAck(args.DeliveryTag, false);
-                            }
-                            catch(Exception e)
-                            {
-                                _model.BasicNack(args.DeliveryTag, false, false);
-                            }
-                        }
-                        break;
+                            Nome = contatoDto.Nome,
+                            Telefone = contatoDto.NumeroTelefone,
+                            Email = contatoDto.Email
+                        };
 
-                    case TipoMensagem.ATUALIZAR_CONTATO:
-                        using (var scope = _serviceProvider.CreateScope())
-                        {
-                            try
-                            {
-                                var contatosAppService = scope.ServiceProvider.GetRequiredService<IContatosAppService>();
-                                var atualizarContato = JsonConvert.DeserializeObject<ContatosMessageVO>
-                                (messageQueueModel.Conteudo);
+                        // Envia o e-mail e registra log de sucesso/erro
+                        //EnviarMensagemDeConfirmacaoDeCadastro(contatosMessageVO);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Tipo de mensagem não implementado para processamento.");
+                    }
 
-                                var atualizarContatoCmd = new AtualizarContatoCommand
-                                {
-                                    Nome = atualizarContato.Nome,
-                                    Telefone = atualizarContato.Telefone,
-                                    Email = atualizarContato.Email
-                                };
+                    // Para testar o DLQ, rejeitamos a mensagem (sem requeue)
+                    //_model.BasicReject(args.DeliveryTag, requeue: false);
+                    //_logger.LogInformation("Mensagem rejeitada e enviada para a DLQ.");
 
-                                var contato = await contatosAppService.AtualizarContatoAsync((int)atualizarContato.Id, atualizarContatoCmd);
-                                _model.BasicAck(args.DeliveryTag, false);
-                            }
-                            catch (Exception e)
-                            {
-                                _model.BasicNack(args.DeliveryTag, false, false);
-                            }
-                        }
-                        break;
-                    case TipoMensagem.DELETAR_CONTATO:
-                        using (var scope = _serviceProvider.CreateScope())
-                        {
-                            try
-                            {
-                                var contatosAppService = scope.ServiceProvider.GetRequiredService<IContatosAppService>();
-                                var deletarContato = JsonConvert.DeserializeObject<ContatosMessageVO>
-                                (messageQueueModel.Conteudo);
-
-                                await contatosAppService.ExcluirContatoAsync((int)deletarContato.Id);
-                                _model.BasicAck(args.DeliveryTag, false);
-                            }
-                            catch (Exception e)
-                            {
-                                _model.BasicNack(args.DeliveryTag, false, false);
-                            }
-                        }
-                        break;
+                    //Para consumir a mensagem da fila e salvar no banco de dados
+                    _model.BasicAck(args.DeliveryTag, false);
+                    _logger.LogInformation("Mensagem confirmada (BasicAck) e consumida.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Erro ao processar a mensagem: {ex.Message}");
+                    _model.BasicNack(args.DeliveryTag, false, false);
+                    _logger.LogError("Mensagem rejeitada (BasicNack).");
                 }
             };
-            //executando o consumidor
-            _model.BasicConsume(queue: _messageSettings.Queue, autoAck: false, consumerTag: "", consumer: consumer);
 
-            return Task.CompletedTask;
+            _logger.LogInformation("Consumidor configurado e aguardando mensagens...");
+            _model.BasicConsume(queue: _messageSettings.Queue, autoAck: false, consumerTag: "", consumer: consumer);
+            _logger.LogInformation("Iniciando o consumo da fila: " + _messageSettings.Queue);
+
+            await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
         /// <summary>
@@ -169,20 +149,24 @@ namespace Fase03.Consumer
             var mailTo = contatosMessageVO.Email;
             var subject = $"Confirmação de cadastro de contato. ID: {contatosMessageVO.Id}";
             var body = $@"Olá {contatosMessageVO.Nome},
-                <br/>
-                <br/>
-                <strong>Parabéns, seu contato
-                foi criado com sucesso!</strong>
-                <br/>
-                <br/>
-                ID: <strong>{contatosMessageVO.Id}</strong> <br/>
-                Nome: <strong>{contatosMessageVO.Nome}</strong> <br/>
-                Telefone: <strong>{contatosMessageVO.Telefone}</strong> <br/>
-                <br/>
-                Att, <br/>
-                Equipe FIAP.";
+                    <br/><br/>
+                    <strong>Parabéns, seu contato foi criado com sucesso!</strong>
+                    <br/><br/>
+                    ID: <strong>{contatosMessageVO.Id}</strong> <br/>
+                    Nome: <strong>{contatosMessageVO.Nome}</strong> <br/>
+                    Telefone: <strong>{contatosMessageVO.Telefone}</strong> <br/><br/>
+                    Att, <br/>
+                    Equipe FIAP.";
 
-            _mailHelper.Send(mailTo, subject, body);
+            try
+            {
+                _mailHelper.Send(mailTo, subject, body);
+                _logger.LogInformation($"E-mail de confirmação enviado para {contatosMessageVO.Email} com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao enviar e-mail de confirmação para {contatosMessageVO.Email}: {ex.Message}");
+            }
         }
     }
 }
