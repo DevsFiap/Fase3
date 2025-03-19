@@ -26,9 +26,12 @@ A arquitetura do projeto é composta pelos seguintes elementos:
 
 - **.NET 8**: Para o desenvolvimento da Web API (Producer) e Worker Service (Consumer).
 - **RabbitMQ**: Para comunicação assíncrona entre os microserviços.
+- **Azure Container Instances (ACI)**: Para hospedagem do *producer*, *consumer* e RabbitMQ.
 - **SQL Database**: Para armazenar os contatos.
 - **Azure Functions**: Para tratar mensagens na DLQ e processar contatos.
 - **Azure API Management**: Para gerenciar a API e configurar *rate limits*.
+- **Prometheus**: Para coleta de métricas do sistema.
+- **Grafana**: Para visualização e monitoramento das métricas coletadas pelo Prometheus.
 
 ## Como Funciona
 
@@ -38,6 +41,7 @@ A arquitetura do projeto é composta pelos seguintes elementos:
 4. O *consumer* lê a mensagem da fila e verifica qual operação deve ser realizada (com base no *enum*).
 5. O *consumer* realiza a operação no banco de dados SQL.
 6. Caso ocorra algum erro, a mensagem é encaminhada para a DLQ no RabbitMQ, onde uma Azure Function pode tratá-la posteriormente.
+7. O Prometheus coleta métricas dos serviços e as exibe no Grafana para monitoramento.
 
 ## Fluxo de Mensagens
 
