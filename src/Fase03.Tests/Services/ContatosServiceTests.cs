@@ -3,6 +3,7 @@ using Fase03.Application.Services;
 using Fase03.Domain.Interfaces.Messages;
 using Fase03.Domain.Models;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Text.Json;
 using TechChallengeFase01.Tests.Builders;
@@ -17,7 +18,9 @@ namespace TechChallengeFase01.Tests.Services
         public ContatosServiceTests()
         {
             _messageQueueProducerMock = new Mock<IMessageQueueProducer>();
-            _contatosService = new ContatosAppService(_messageQueueProducerMock.Object);
+            var mock = new Mock<ILogger<ContatosAppService>>();
+            ILogger<ContatosAppService> logger = mock.Object;
+            _contatosService = new ContatosAppService(_messageQueueProducerMock.Object, logger);
         }
 
         [Fact(DisplayName = "Criar contato com sucesso")]

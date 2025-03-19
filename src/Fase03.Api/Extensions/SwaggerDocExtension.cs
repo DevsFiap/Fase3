@@ -64,21 +64,12 @@ public static class SwaggerDocExtension
     public static IApplicationBuilder UseSwaggerDoc(this IApplicationBuilder app, IWebHostEnvironment env)
     {
         app.UseSwagger();
-        if (env.IsDevelopment())
+
+        app.UseDeveloperExceptionPage();
+        app.UseSwaggerUI(c =>
         {
-            app.UseDeveloperExceptionPage();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API - Contatos");
-            });
-        }
-        else
-        {
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/ContatosAPI/swagger/v1/swagger.json", "API - Contatos");
-            });
-        }
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "API - Contatos");
+        });
 
         return app;
     }
