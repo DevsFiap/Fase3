@@ -11,7 +11,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
-      - MessageSettings__Host=amqp://guest:guest@rabbitmq:5672/
+      - MessageSettings__Host=amqp://guest:guest@rabbitmq-fiap.brazilsouth.azurecontainer.io:5672/
     depends_on:
       - rabbitmq
     networks:

@@ -4,6 +4,7 @@ using Fase03.Application.Interfaces;
 using Fase03.Domain.Interfaces.Messages;
 using Fase03.Domain.Models;
 using Fase03.Infra.Message.ValueObjects;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 namespace Fase03.Application.Services;
@@ -11,10 +12,12 @@ namespace Fase03.Application.Services;
 public class ContatosAppService : IContatosAppService
 {
     private readonly IMessageQueueProducer _messageQueueProducer;
+    private readonly ILogger<ContatosAppService> _logger;
 
-    public ContatosAppService(IMessageQueueProducer messageQueueProducer)
+    public ContatosAppService(IMessageQueueProducer messageQueueProducer, ILogger<ContatosAppService> logger)
     {
         _messageQueueProducer = messageQueueProducer;
+        _logger = logger;
     }
 
     public async Task<string> CriarContatoAsync(CriarContatoCommand dto)
@@ -28,14 +31,18 @@ public class ContatosAppService : IContatosAppService
                 Email = dto.Email
             };
 
+            _logger.LogInformation($"Criar contato - Nome: {conteudoMensagem.Nome} Telefone {conteudoMensagem.Telefone} Email {conteudoMensagem.Email}");
+
             var mensagem = new MessageQueueModel
             {
                 Conteudo = JsonSerializer.Serialize(conteudoMensagem),
                 Tipo = TipoMensagem.INSERIR_CONTATO
             };
 
+            _logger.LogInformation($"Enviar mensagem");
+
             // Criar o contato e enviar pra fila de contato
-             _messageQueueProducer.Create(mensagem);
+            _messageQueueProducer.Create(mensagem);
 
             return "A mensagem para criação de contato foi enviada";
         }

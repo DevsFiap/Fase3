@@ -19,7 +19,8 @@ namespace Fase03.Consumer
         private readonly MessageSettings _messageSettings;
         private readonly ILogger<Worker> _logger;
         private readonly IMailHelper _mailHelper;
-        private readonly IContatosAppService _contatosAppService;
+        private readonly IServiceProvider _serviceProvider;
+        //  private readonly IContatosAppService _contatosAppService;
 
         public Worker(
             IConnection connection,
@@ -27,14 +28,17 @@ namespace Fase03.Consumer
             IOptions<MessageSettings> messageSettings,
             IMailHelper mailHelper,
             ILogger<Worker> logger,
-            IContatosAppService contatosAppService)
+            IServiceProvider serviceProvider
+            //      IContatosAppService contatosAppService
+            )
         {
             _connection = connection;
             _model = model;
             _messageSettings = messageSettings.Value;
             _mailHelper = mailHelper;
             _logger = logger;
-            _contatosAppService = contatosAppService;
+            _serviceProvider = serviceProvider;
+   //         _contatosAppService = contatosAppService;
 
             _logger.LogInformation("Iniciando o Worker...");
 
@@ -98,8 +102,10 @@ namespace Fase03.Consumer
 
                     if (messageQueueModel.Tipo == TipoMensagem.INSERIR_CONTATO)
                     {
+                        var scope = _serviceProvider.CreateScope();
+                        var contatosAppService = scope.ServiceProvider.GetRequiredService<IContatosAppService>();
                         var criarContatoCommand = JsonConvert.DeserializeObject<CriarContatoCommand>(messageQueueModel.Conteudo);
-                        var contatoDto = await _contatosAppService.CriarContatoAsync(criarContatoCommand);
+                        var contatoDto = await contatosAppService.CriarContatoAsync(criarContatoCommand);
                         _logger.LogInformation($"Contato '{contatoDto.Nome}' criado com sucesso.");
 
                         var contatosMessageVO = new ContatosMessageVO

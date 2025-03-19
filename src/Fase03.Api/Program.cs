@@ -1,7 +1,6 @@
 using Fase03.Api.Extensions;
 using Fase03.Api.Middlewares;
 using Fase03.Infra.IoC.Extensions;
-using Fase03.Infra.IoC.Logging;
 using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,12 +14,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddPrometheusMetrics();
 builder.Services.AddRabbitMqConfig(builder.Configuration);
 builder.Services.AddMediatRConfig();
-
-builder.Logging.ClearProviders();
-builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
-{
-    LogLevel = LogLevel.Information,
-}));
 
 var app = builder.Build();
 

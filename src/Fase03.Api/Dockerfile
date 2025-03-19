@@ -5,6 +5,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
 EXPOSE 8080
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
@@ -15,7 +16,6 @@ COPY ["Fase03.Infra.IoC/Fase03.Infra.IoC.csproj", "./Fase03.Infra.IoC/"]
 COPY ["Fase03.Application/Fase03.Application.csproj", "./Fase03.Application/"]
 COPY ["Fase03.Domain/Fase03.Domain.csproj", "./Fase03.Domain/"]
 COPY ["Fase03.Domain.Core/Fase03.Domain.Core.csproj", "./Fase03.Domain.Core/"]
-COPY ["Fase03.Infra.Data/Fase03.Infra.Data.csproj", "./Fase03.Infra.Data/"]
 COPY . .
 WORKDIR "/src/Fase03.Api"
 RUN dotnet build "./Fase03.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build

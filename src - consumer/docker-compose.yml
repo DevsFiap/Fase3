@@ -12,7 +12,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8082
-      - MessageSettings__Host=amqp://guest:guest@rabbitmq:5672/
+      - MessageSettings__Host=amqp://guest:guest@rabbitmq-fiap.brazilsouth.azurecontainer.io:5672/
     networks:
       - microservice-network
 
