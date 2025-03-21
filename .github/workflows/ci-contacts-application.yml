@@ -41,22 +41,22 @@ jobs:
         dotnet-version: 8.0.x
 
     # Restore the application and all its dependencies
-    - name: Restore dependencies
+    - name: Producer - Restore dependencies
       run: dotnet restore ${{ env.Solution_Name }} 
 
     # Build the application
-    - name: Build the application
+    - name: Producer - Build the application
       run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} 
 
     # Execute all unit tests in the solution
-    - name: Execute unit tests
+    - name: Producer - Execute unit tests
       run: dotnet test ${{ env.Test_Project_Path }} 
 
-   # - name: Execute Integration tests
+   # - name: Producer - Execute Integration tests
    #   run: dotnet test ${{ env.Integration_Test_Project_Path }} 
 
     # Upload the build artifacts
-    - name: Upload build artifacts
+    - name: Producer - Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: artifact
@@ -64,22 +64,22 @@ jobs:
 
 # Consumer CI/CD
     # Restore the application and all its dependencies
-    - name: Restore dependencies
+    - name: Consumer - Restore dependencies
       run: dotnet restore ${{ env.Consumer_Solution_Name }} 
 
     # Build the application
-    - name: Build the application
+    - name: Consumer - Build the application
       run: dotnet build ${{ env.Consumer_Solution_Name }} --configuration ${{ matrix.configuration }} 
 
     # Execute all unit tests in the solution
-    - name: Execute unit tests
+    - name: Consumer - Execute unit tests
       run: dotnet test ${{ env.Consumer_Test_Project_Path }} 
 
-   # - name: Execute Integration tests
+   # - name: Consumer - Execute Integration tests
    #   run: dotnet test ${{ env.Consumer_Integration_Test_Project_Path }} 
 
     # Upload the build artifacts
-    - name: Upload build artifacts
+    - name: Consumer - Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: artifact
