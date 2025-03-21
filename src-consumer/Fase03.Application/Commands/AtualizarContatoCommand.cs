@@ -6,6 +6,8 @@ namespace Fase03.Application.Commands;
 
 public class AtualizarContatoCommand : IRequest<ContatoDto>
 {
+    public int Id { get; set; }
+
     [Required(ErrorMessage = "O nome é obrigatório.")]
     public string Nome { get; set; }
 
