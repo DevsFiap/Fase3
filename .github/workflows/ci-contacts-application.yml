@@ -23,9 +23,9 @@ jobs:
       Test_Project_Path: src/Fase03.Tests/Fase03.Tests.csproj  # Path to your test project
       Integration_Test_Project_Path: src/Fase03.IntegrationTests/Fase03.IntegrationTests.csproj
     # Consumer envs
-      Consumer_Solution_Name: src-consumer/Fase03.sln 
-      Consumer_Test_Project_Path: src - consumer/Fase03.Tests/Fase03.Tests.csproj  
-      Consumer_Integration_Test_Project_Path: src - consumer/Fase03.IntegrationTests/Fase03.IntegrationTests.csproj  # Path to your integration test project
+      Consumer_Solution_Name: src-consumer/Fase03.Consumer.sln 
+      Consumer_Test_Project_Path: src-consumer/Fase03.Tests/Fase03.Tests.csproj  
+      Consumer_Integration_Test_Project_Path: src-consumer/Fase03.IntegrationTests/Fase03.IntegrationTests.csproj  # Path to your integration test project
     
     # Producer CI/CD
     steps:
