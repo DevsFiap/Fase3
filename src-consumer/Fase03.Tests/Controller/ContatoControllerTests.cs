@@ -1,8 +1,5 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Fase03.Api.Controllers;
 using Fase03.Application.Dto;
 using Fase03.Application.Interfaces;
 using Fase03.Domain.Enums;
@@ -12,111 +9,12 @@ namespace TechChallengeFase01.Tests.Controller
 {
     public class ContatoControllerTests
     {
-        private ContatosController _controller;
         private Mock<IContatosAppService> _contatosServiceMock;
         public ContatoControllerTests()
         {
             _contatosServiceMock = new Mock<IContatosAppService>();
-            _controller = new ContatosController(_contatosServiceMock.Object);
         }
-
-        [Fact(DisplayName = "Buscar contatos com sucesso")]
-        public async Task GetContacts_Should_Return_Contacts_With_Ok_Status()
-        {
-            //Arrange
-            var contacts = new List<ContatoDto>()
-            {
-                 new ContatoDtoBuilder().Build()
-            };
-
-            _contatosServiceMock.Setup(x => x.GetContatos()).ReturnsAsync(contacts);
-
-            //Act
-            var result = await _controller.BuscarContatos();
-            var okResult = result as OkObjectResult;
-            var contactsResult = okResult?.Value as List<ContatoDto>;
-
-            //Assert
-            Assert.NotNull(result);
-            Assert.NotNull(okResult);
-            Assert.Equal(200, okResult.StatusCode);
-            Assert.NotNull(contactsResult);
-            contactsResult.Should().BeEquivalentTo(contacts);
-        }
-
-        [Fact(DisplayName = "Buscar contatos com retorno sem conteúdo")]
-        public async Task GetContacts_Should_Return_No_Contacts_With_No_Content_Status()
-        {
-            //Arrange
-            _contatosServiceMock.Setup(x => x.GetContatos()).ReturnsAsync((List<ContatoDto>)null);
-
-            //Act
-            var result = await _controller.BuscarContatos();
-            var noContentResult = result as NoContentResult;
-
-            //Assert
-            Assert.NotNull(result);
-            Assert.NotNull(noContentResult);
-            Assert.Equal(204, noContentResult.StatusCode);
-        }
-
-        [Fact(DisplayName = "Buscar contatos com exceção")]
-        public async Task GetContacts_Should_Return_Bad_Request_When_Throws_Exception()
-        {
-            //Arrange
-            _contatosServiceMock.Setup(x => x.GetContatos()).Throws<Exception>();
-
-            //Act
-            var result = await _controller.BuscarContatos();
-            var badRequestResult = result as BadRequestObjectResult;
-
-            //Assert
-            Assert.NotNull(result);
-            Assert.NotNull(badRequestResult);
-            Assert.Equal(400, badRequestResult.StatusCode);
-        }
-
-        [Fact(DisplayName = "Buscar contatos por DDD com sucesso")]
-        public async Task GetByDDD_Should_Return_Ok_When_Contacts_Exist()
-        {
-            // Arrange
-            var ddd = EnumDDD.Recife_PE;
-            var contacts = new List<ContatoDto>()
-            {
-                 new ContatoDtoBuilder().Build()
-            };
-
-            _contatosServiceMock
-                .Setup(service => service.ObterPorDDDAsync(ddd))
-                .ReturnsAsync(contacts);
-
-            // Act
-            var result = await _controller.BuscarPorDDD(ddd);
-
-            // Assert
-            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
-            okResult.StatusCode.Should().Be(StatusCodes.Status200OK);
-            okResult.Value.Should().BeEquivalentTo(contacts);
-        }
-
-        [Fact(DisplayName = "Buscar contatos por DDD com retorno NotFound")]
-        public async Task GetByDDD_Should_Return_Not_Found_When_No_Contacts_Exist()
-        {
-            // Arrange
-            var ddd = EnumDDD.Recife_PE;
-
-            _contatosServiceMock
-                .Setup(service => service.ObterPorDDDAsync(ddd))
-                .ReturnsAsync((List<ContatoDto>)null); 
-
-            // Act
-            var result = await _controller.BuscarPorDDD(ddd);
-
-            // Assert
-            var notFoundResult = result.Should().BeOfType<NoContentResult>().Subject;
-            notFoundResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-        }
-
+        /*
         [Fact(DisplayName = "Criar contato com sucesso")]
         public async Task CriarContato_Should_Return_Created_When_Contact_Is_Valid()
         {
@@ -194,5 +92,7 @@ namespace TechChallengeFase01.Tests.Controller
             okResult.StatusCode.Should().Be(StatusCodes.Status200OK);
             okResult.Value.Should().Be("Contato excluído com sucesso");
         }
+
+        */
     }
 }

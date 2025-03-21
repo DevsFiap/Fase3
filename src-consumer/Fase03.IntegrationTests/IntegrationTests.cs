@@ -6,8 +6,9 @@ using System.Text;
 using Fase03.Application.Dto;
 using Fase03.Domain.Entities;
 using Fase03.Infra.Data.Context;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 
-namespace TechChallengeFase02.IntegrationTests
+namespace Fase03.IntegrationTests
 {
     public class ApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
     {

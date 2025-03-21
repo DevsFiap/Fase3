@@ -21,3 +21,5 @@ var logger = host.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Aplicação iniciando...");
 
 host.Run();
+
+public partial class Program { }
