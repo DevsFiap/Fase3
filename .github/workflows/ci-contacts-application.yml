@@ -18,10 +18,16 @@ jobs:
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
 
     env:
-      Solution_Name: src/TechChallangeFase02.sln  # Path to your solution (use forward slashes for Linux)
-      Test_Project_Path: src/TechChallengeFase02.Tests/TechChallengeFase02.Tests.csproj  # Path to your test project
-      Integration_Test_Project_Path: src/TechChallengeFase02.IntegrationTests/TechChallengeFase02.IntegrationTests.csproj  # Path to your integration test project
-      
+     # Producer envs
+      Solution_Name: src/Fase03.sln  # Path to your solution (use forward slashes for Linux)
+      Test_Project_Path: src/Fase03.Tests/Fase03.Tests.csproj  # Path to your test project
+      Integration_Test_Project_Path: src/Fase03.IntegrationTests/Fase03.IntegrationTests.csproj
+    # Consumer envs
+      Consumer_Solution_Name: src - consumer/Fase03.sln 
+      Consumer_Test_Project_Path: src - consumer/Fase03.Tests/Fase03.Tests.csproj  
+      Consumer_Integration_Test_Project_Path: src - consumer/Fase03.IntegrationTests/Fase03.IntegrationTests.csproj  # Path to your integration test project
+    
+    # Producer CI/CD
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -46,12 +52,35 @@ jobs:
     - name: Execute unit tests
       run: dotnet test ${{ env.Test_Project_Path }} 
 
-    - name: Execute Integration tests
-      run: dotnet test ${{ env.Integration_Test_Project_Path }} 
+   # - name: Execute Integration tests
+   #   run: dotnet test ${{ env.Integration_Test_Project_Path }} 
 
     # Upload the build artifacts
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: artifact
-        path: dist/build/artifact/
+        path: dist/build/artifact/producer
+
+# Consumer CI/CD
+    # Restore the application and all its dependencies
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.Consumer_Solution_Name }} 
+
+    # Build the application
+    - name: Build the application
+      run: dotnet build ${{ env.Consumer_Solution_Name }} --configuration ${{ matrix.configuration }} 
+
+    # Execute all unit tests in the solution
+    - name: Execute unit tests
+      run: dotnet test ${{ env.Consumer_Test_Project_Path }} 
+
+   # - name: Execute Integration tests
+   #   run: dotnet test ${{ env.Consumer_Integration_Test_Project_Path }} 
+
+    # Upload the build artifacts
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifact
+        path: dist/build/artifact/consumer
